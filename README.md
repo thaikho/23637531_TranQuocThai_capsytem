@@ -477,3 +477,182 @@ Tài liệu chuyển hóa các nhu cầu từ bài toán vận hành của Công
 | **BR-19** | Phân quyền truy cập quản trị (RBAC) | Admin, Ops | Admin Portal | **Must-Have** |
 | **BR-20** | Nhật ký lưu vết hệ thống (Audit Log)| Ops, Admin | Admin Portal | **Must-Have** |
 | **BR-21** | Báo cáo doanh thu & hiệu suất | Management, Ops | Admin Portal | **Must-Have** |
+
+
+
+## BƯỚC 6: PHÂN RÃ YÊU CẦU CHỨC NĂNG (FUNCTIONAL REQUIREMENTS - FR)
+
+Tài liệu phân rã chi tiết các Yêu cầu Nghiệp vụ (Business Requirements) thành các Yêu cầu Chức năng cụ thể (Functional Requirements - FR) theo từng phân hệ cho dự án 7 tuần.
+
+---
+
+### 1. Phân hệ 1: Xác thực & Quản lý Tài khoản (Authentication & Profile)
+
+* **FR-AUTH-01 (Đăng ký tài khoản):** Hệ thống cho phép Khách hàng và Tài xế đăng ký tài khoản bằng Số điện thoại, họ tên và mật khẩu; gửi mã OTP qua SMS/Push để xác thực số điện thoại[cite: 4].
+* **FR-AUTH-02 (Đăng nhập / Đăng xuất):** Hệ thống hỗ trợ đăng nhập qua Số điện thoại + Mật khẩu hoặc OTP; hỗ trợ chức năng "Quên mật khẩu" và cho phép người dùng đăng xuất an toàn[cite: 4].
+* **FR-AUTH-03 (Quản lý hồ sơ cá nhân):** Người dùng (Khách hàng / Tài xế) có thể xem và cập nhật thông tin cá nhân (Ảnh đại diện, họ tên, email)[cite: 4].
+* **FR-AUTH-04 (Hồ sơ phương tiện & Giấy tờ tài xế):** Tài xế có thể tải lên/cập nhật thông tin phương tiện (Biển số xe, hãng xe, loại xe: 2 bánh, 4 chỗ, 7 chỗ) và ảnh chụp Giấy phép lái xe[cite: 4].
+* **FR-AUTH-05 (Chuyển đổi trạng thái hoạt động):** Tài xế có nút gạt để chủ động chuyển đổi giữa 2 trạng thái: `Online (Sẵn sàng nhận cuốc)` và `Offline (Nghỉ ngơi)`[cite: 4].
+
+---
+
+### 2. Phân hệ 2: Đặt xe & Ước tính Cước phí (Booking & Fare Estimation)
+
+* **FR-BOOK-01 (Chọn điểm đón & Điểm đến):** Hệ thống tích hợp Map API cho phép khách hàng ghim vị trí đón/trả trên bản đồ hoặc tìm kiếm địa chỉ thông qua ô nhập liệu có gợi ý tự động (Autocomplete)[cite: 4].
+* **FR-BOOK-02 (Lựa chọn loại dịch vụ):** Hệ thống hiển thị danh sách các loại xe khả dụng (Xe máy, Xe 4 chỗ, Xe 7 chỗ) kèm thời gian dự kiến tài xế đến đón (ETA)[cite: 4].
+* **FR-BOOK-03 (Ước tính cước phí tạm tính):** Hệ thống tự động tính toán và hiển thị trước giá cước ước tính dựa trên công thức cố định theo quãng đường và loại xe trước khi đặt chuyến[cite: 4].
+* **FR-BOOK-04 (Gửi yêu cầu đặt xe):** Khách hàng chọn phương thức thanh toán (Tiền mặt / Thẻ / Ví) và nhấn nút "Đặt xe" để khởi tạo đơn chuyến[cite: 4].
+* **FR-BOOK-05 (Hủy yêu cầu đặt xe):** Khách hàng có thể hủy yêu cầu đặt xe khi hệ thống đang trong giai đoạn tìm kiếm tài xế mà không bị tính phí[cite: 4].
+
+---
+
+### 3. Phân hệ 3: Điều phối & Ghép Chuyến Tự động (Matching & Dispatching)
+
+* **FR-DISP-01 (Tìm kiếm tài xế gần nhất):** Khi nhận yêu cầu đặt xe, hệ thống tự động quét tọa độ GPS để lọc ra danh sách các tài xế đang `Online` trong bán kính quy định (mặc định: 3km–5km) phù hợp với loại xe được yêu cầu[cite: 4].
+* **FR-DISP-02 (Gửi yêu cầu đến tài xế):** Hệ thống gửi thông tin chuyến đi (Điểm đón, điểm đến, khoảng cách, giá cước tạm tính) đến tài xế ưu tiên nhất kèm bộ đếm ngược thời gian phản hồi (15s–30s)[cite: 4].
+* **FR-DISP-03 (Phản hồi chuyến đi):** Tài xế có thể chọn `Chấp nhận` hoặc `Từ chối` chuyến xe trong thời gian đếm ngược[cite: 4].
+* **FR-DISP-04 (Tự động luân chuyển chuyến - Fallback):** Nếu tài xế từ chối hoặc hết thời gian đếm ngược (Timeout) mà không phản hồi, hệ thống tự động loại tài xế đó và chuyển tiếp cuốc xe đến tài xế phù hợp tiếp theo[cite: 4].
+* **FR-DISP-05 (Thông báo hết lượt tìm kiếm):** Nếu sau số lần chuyển tiếp tối đa (hoặc hết thời gian quét) mà không có tài xế nhận, hệ thống tự động hủy đơn và gửi thông báo "Không tìm thấy tài xế khả dụng" đến khách hàng.
+
+---
+
+### 4. Phân hệ 4: Quản lý Chuyến đi & Định vị Real-time (Trip Execution & Tracking)
+
+* **FR-TRIP-01 (Cập nhật tiến trình chuyến đi):** Hệ thống cung cấp các nút bấm cho tài xế cập nhật trạng thái chuyến theo thứ tự: `Đã đến điểm đón` → `Đã đón khách` → `Hoàn thành chuyến đi`[cite: 4].
+* **FR-TRIP-02 (Theo dõi xe trên bản đồ thời gian thực):** Hệ thống nhận tọa độ GPS từ thiết bị tài xế (mỗi 3-5s) và render trực tiếp vị trí xe di chuyển trên bản đồ của khách hàng[cite: 4].
+* **FR-TRIP-03 (Hủy chuyến sau khi ghép xe thành công):** Khách hàng hoặc tài xế có thể hủy chuyến trước khi tài xế bấm `Đã đón khách` kèm theo việc bắt buộc chọn lý do hủy[cite: 4].
+* **FR-TRIP-04 (Tra cứu lịch sử chuyến đi):** Khách hàng và tài xế có thể xem danh sách các chuyến đi đã hoàn thành hoặc đã hủy kèm chi tiết lộ trình, thời gian, số tiền và thông tin đối tác[cite: 4].
+
+---
+
+### 5. Phân hệ 5: Thanh toán & Tính cước (Payment & Billing)
+
+* **FR-PAY-01 (Tính cước thực tế khi hoàn thành):** Khi tài xế bấm `Hoàn thành chuyến đi`, hệ thống tính toán giá cước cuối cùng dựa trên quãng đường/thời gian thực tế và hiển thị hóa đơn điện tử cho cả 2 bên[cite: 4].
+* **FR-PAY-02 (Thanh toán Tiền mặt):** Nếu khách chọn tiền mặt, màn hình tài xế hiển thị số tiền cần thu; tài xế bấm nút "Đã nhận đủ tiền" để kết thúc cuốc xe[cite: 4].
+* **FR-PAY-03 (Thanh toán Trực tuyến qua Cổng Payment):** Hệ thống gọi API Cổng thanh toán bên ngoài để xử lý giao dịch và nhận kết quả qua Webhook; tuyệt đối không lưu trữ số thẻ/CVV của khách hàng[cite: 4].
+* **FR-PAY-04 (Xử lý lỗi thanh toán trực tuyến):** Nếu cổng thanh toán báo lỗi hoặc quá hạn, hệ thống thông báo lỗi cho khách hàng và cho phép thử lại hoặc chuyển sang thanh toán bằng tiền mặt[cite: 4].
+
+---
+
+### 6. Phân hệ 6: Hệ thống Thông báo (Notification)
+
+* **FR-NOTI-01 (Thông báo trạng thái cuốc xe):** Tự động gửi Push Notification / In-app alert cho khách hàng và tài xế khi ghép chuyến thành công, khi tài xế đến điểm đón, khi hoàn thành chuyến và kết quả thanh toán[cite: 4].
+* **FR-NOTI-02 (Thông báo cho tài xế):** Phát âm thanh chuông cảnh báo và rung màn hình khi có cuốc xe mới được điều phối tới.
+
+---
+
+### 7. Phân hệ 7: Quản trị Vận hành & Báo cáo (Admin Portal)
+
+* **FR-ADM-01 (Quản lý tài khoản người dùng):** Nhân viên vận hành có thể tìm kiếm, xem chi tiết, khóa hoặc mở khóa tài khoản Khách hàng và Tài xế[cite: 4].
+* **FR-ADM-02 (Phê duyệt hồ sơ tài xế & phương tiện):** Nhân viên vận hành kiểm tra ảnh bằng lái, thông tin xe và bấm "Duyệt" hoặc "Từ chối" hồ sơ đăng ký tài xế[cite: 4].
+* **FR-ADM-03 (Bảng giám sát chuyến đi Real-time):** Dashboard hiển thị trực quan danh sách các chuyến xe đang diễn ra, trạng thái tài xế và cảnh báo chuyến xe bị lỗi/treo[cite: 4].
+* **FR-ADM-04 (Phân quyền người dùng - RBAC):** Hệ thống phân chia quyền rõ ràng giữa `Super Admin` và `Ops Staff` để kiểm soát thao tác nhạy cảm[cite: 4].
+* **FR-ADM-05 (Ghi nhật ký hệ thống - Audit Trail):** Tự động lưu vết lịch sử mọi thao tác thay đổi trạng thái, can thiệp cuốc xe hoặc duyệt tài khoản của nhân viên vận hành[cite: 4].
+* **FR-ADM-06 (Báo cáo thống kê kinh doanh):** Bảng tổng hợp số liệu cho phép lọc theo ngày/tuần/tháng về tổng số chuyến đi, doanh thu, tỷ lệ hoàn thành/hủy và hiệu suất tài xế[cite: 4].
+
+# Business Requirements Specification: CAB System Platform
+> **Dự án:** Xây dựng nền tảng đặt xe CAB System[cite: 4]  
+> **Khách hàng:** Công ty ABC[cite: 4]  
+> **Thời gian thực hiện & triển khai:** 7 tuần (MVP Core Scope)[cite: 4]  
+> **Vai trò phân tích:** Business Analyst (BA)[cite: 4]  
+
+---
+
+## 📌 BƯỚC 7: SƠ ĐỒ USE CASE TỔNG QUAN (USE CASE DIAGRAM)
+
+Sơ đồ mô hình hóa toàn bộ sự tương tác giữa các tác nhân (Actors) và các ca sử dụng cốt lõi (Use Cases) trong phạm vi hệ thống **CAB System (MVP 7 tuần)**[cite: 4].
+
+---
+
+### 1. Sơ đồ Use Case Tổng Thể Hệ Thống (System Use Case Diagram)
+
+```mermaid
+flowchart LR
+    %% Actors
+    Customer(["Khách hàng\n(Customer)"])
+    Driver(["Tài xế\n(Driver)"])
+    Ops(["Nhân viên Vận hành\n(Ops Staff)"])
+    Admin(["Quản trị viên\n(Super Admin)"])
+    PaymentGW(["Cổng Thanh toán\n(Payment Gateway)"])
+    NotiSystem(["Hệ thống Thông báo\n(FCM/SMS Service)"])
+
+    subgraph CAB_System ["HỆ THỐNG CAB SYSTEM (MVP 7 TUẦN)"]
+        %% Phân hệ Xác thực & Hồ sơ
+        subgraph Sub_Auth ["Xác thực & Hồ sơ"]
+            UC_Auth1["UC01: Đăng ký / Đăng nhập OTP"]
+            UC_Auth2["UC02: Cập nhật hồ sơ cá nhân"]
+            UC_Auth3["UC03: Quản lý hồ sơ xe & giấy phép"]
+            UC_Auth4["UC04: Bật/Tắt trạng thái Online"]
+        end
+
+        %% Phân hệ Đặt xe & Điều phối
+        subgraph Sub_Booking ["Đặt xe & Điều phối xe"]
+            UC_Book1["UC05: Chọn lộ trình & Xem giá cước"]
+            UC_Book2["UC06: Gửi yêu cầu đặt xe"]
+            UC_Book3["UC07: Nhận/Từ chối cuốc xe"]
+            UC_Book4["UC08: Tự động điều phối & Chuyển tiếp cuốc"]
+        end
+
+        %% Phân hệ Chuyến đi & Định vị
+        subgraph Sub_Trip ["Quản lý Chuyến đi"]
+            UC_Trip1["UC09: Cập nhật tiến trình chuyến đi"]
+            UC_Trip2["UC10: Theo dõi vị trí xe thời gian thực"]
+            UC_Trip3["UC11: Hủy chuyến đi kèm lý do"]
+            UC_Trip4["UC12: Xem lịch sử chuyến đi"]
+        end
+
+        %% Phân hệ Thanh toán & Thông báo
+        subgraph Sub_Payment ["Thanh toán & Thông báo"]
+            UC_Pay1["UC13: Thanh toán Tiền mặt"]
+            UC_Pay2["UC14: Thanh toán qua Cổng trực tuyến"]
+            UC_Pay3["UC15: Nhận thông báo đẩy Real-time"]
+        end
+
+        %% Phân hệ Quản trị & Báo cáo
+        subgraph Sub_Admin ["Quản trị & Báo cáo"]
+            UC_Adm1["UC16: Phê duyệt hồ sơ tài xế"]
+            UC_Adm2["UC17: Giám sát chuyến xe trực tiếp"]
+            UC_Adm3["UC18: Quản lý tài khoản & Khóa/Mở khóa"]
+            UC_Adm4["UC19: Xem báo cáo doanh thu & cuốc xe"]
+            UC_Adm5["UC20: Phân quyền & Quản lý Audit Log"]
+        end
+    end
+
+    %% Tương tác Khách hàng
+    Customer --> UC_Auth1
+    Customer --> UC_Auth2
+    Customer --> UC_Book1
+    Customer --> UC_Book2
+    Customer --> UC_Trip2
+    Customer --> UC_Trip3
+    Customer --> UC_Trip4
+    Customer --> UC_Pay1
+    Customer --> UC_Pay2
+    Customer --> UC_Pay3
+
+    %% Tương tác Tài xế
+    Driver --> UC_Auth1
+    Driver --> UC_Auth2
+    Driver --> UC_Auth3
+    Driver --> UC_Auth4
+    Driver --> UC_Book3
+    Driver --> UC_Trip1
+    Driver --> UC_Trip3
+    Driver --> UC_Trip4
+    Driver --> UC_Pay1
+    Driver --> UC_Pay3
+
+    %% Tương tác Vận hành & Admin
+    Ops --> UC_Auth1
+    Ops --> UC_Adm1
+    Ops --> UC_Adm2
+    Ops --> UC_Adm3
+    Ops --> UC_Adm4
+
+    Admin --> Ops
+    Admin --> UC_Adm5
+
+    %% Tương tác Hệ thống bên ngoài
+    UC_Book4 -.-> UC_Book3
+    UC_Pay2 <--> PaymentGW
+    UC_Pay3 <--> NotiSystem
