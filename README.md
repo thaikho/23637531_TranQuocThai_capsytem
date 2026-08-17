@@ -78,3 +78,51 @@ Hệ thống phục vụ **3 nhóm người dùng chính** cùng với **các h�
 | **Đội ngũ phát triển kỹ thuật**<br>*(Development & Technical Team)* | Phân tích, thiết kế, lập trình, kiểm thử và triển khai hệ thống nền tảng CAB. | • Tương tác qua môi trường phát triển (Dev/Staging/Production), hệ thống quản lý mã nguồn, CI/CD.<br>• Giám sát hiệu năng hệ thống và cấu hình các dịch vụ tích hợp. |
 | **Nhà cung cấp cổng thanh toán**<br>*(Payment Gateway Providers)* | Bên thứ ba cung cấp hạ tầng xử lý giao dịch điện tử (thẻ/ví) an toàn. | • Nhận yêu cầu thanh toán qua API từ hệ thống CAB.<br>• Xử lý giao dịch và trả kết quả (thành công/thất bại) về hệ thống mà không lưu dữ liệu nhạy cảm tại CAB. |
 | **Nhà cung cấp dịch vụ thông báo**<br>*(Notification Providers)* | Bên thứ ba cung cấp hạ tầng gửi tin nhắn và thông báo đa kênh. | • Nhận yêu cầu từ hệ thống CAB để gửi tin nhắn (SMS, Push Notification, Email) đến khách hàng và tài xế. |
+
+
+
+> **Sơ đồ Mermaid (Quy trình Đặt xe và Phân công Tài xế)**
+
+---
+
+## 🗺️ Sơ đồ Quy trình Đặt xe & Phân công (Mermaid Diagram)
+
+
+```mermaid
+flowchart TD
+    Start([Bắt đầu]) --> Input[Khách hàng nhập điểm đón, điểm đến và chọn loại xe]
+    Input --> CreateReq[Khách hàng gửi yêu cầu đặt xe]
+    CreateReq --> SystemProcess[Hệ thống ghi nhận yêu cầu và tính cước dự kiến]
+    
+    SystemProcess --> FindDriver{Hệ thống tìm tài xế phù hợp gần nhất}
+    
+    FindDriver -->|Tìm thấy tài xế| SendNoti[Gửi thông báo yêu cầu chuyến đi cho Tài xế]
+    FindDriver -->|Không tìm thấy tài xế| NotifyFail[Thông báo rõ ràng cho khách hàng: Không tìm thấy tài xế] --> End([Kết thúc])
+    
+    SendNoti --> DriverAction{Tài xế phản hồi?}
+    
+    DriverAction -->|Từ chối hoặc Hết thời gian| CheckMore{Còn tài xế phù hợp khác?}
+    CheckMore -->|Còn| FindDriver
+    CheckMore -->|Hết| NotifyFail
+    
+    DriverAction -->|Chấp nhận chuyến| UpdateTrip[Hệ thống cập nhật: Tài xế đã nhận chuyến]
+    UpdateTrip --> NotiCustomer[Thông báo cho khách hàng: Tài xế đang đến]
+    
+    NotiCustomer --> DriverArrive[Tài xế đến điểm đón và đón khách]
+    DriverArrive --> InProgress[Chuyến đi đang di chuyển đến điểm đến]
+    InProgress --> CompleteTrip[Tài xế hoàn thành chuyến đi]
+    
+    CompleteTrip --> CalcFinal[Hệ thống tính cước phí chính thức]
+    CalcFinal --> PaymentChoice{Phương thức thanh toán?}
+    
+    PaymentChoice -->|Tiền mặt| CashPay[Khách hàng thanh toán tiền mặt cho tài xế]
+    PaymentChoice -->|Điện tử| GatewayPay[Gọi API Cổng thanh toán bên thứ ba]
+    
+    GatewayPay --> PayResult{Giao dịch thành công?}
+    PayResult -->|Thất bại| PayFailNoti[Thông báo lỗi thanh toán và cho phép xử lý lại] --> GatewayPay
+    PayResult -->|Thành công| FinishPay[Xác nhận thanh toán hoàn tất]
+    
+    CashPay --> Finalize[Hệ thống đóng chuyến đi]
+    FinishPay --> Finalize
+    
+    Finalize --> Rate[Khách hàng đánh giá tài xế và nhận thông báo hoàn thành] --> End
